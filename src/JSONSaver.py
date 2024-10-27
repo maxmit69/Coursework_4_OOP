@@ -1,6 +1,7 @@
 import json
 from config import PATH_FORMAT
 from src.utils import WorkingWithFiles
+import os
 
 
 class JSONSaver(WorkingWithFiles):
@@ -27,5 +28,7 @@ class JSONSaver(WorkingWithFiles):
     def delete_vacancy(self, vacancy):
         """ Удаление информации о вакансиях
         """
-        with open(PATH_FORMAT, "w", encoding="utf-8") as file:
-            file.write("")
+        # Проверяем, существует ли файл
+        if os.path.exists(PATH_FORMAT):
+            os.remove(PATH_FORMAT)  # Удаляем файл
+            print(f"Файл '{PATH_FORMAT}' успешно удален.")

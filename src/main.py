@@ -1,6 +1,6 @@
 from src.HeadHunterAPI import HeadHunterAPI
 from src.JSONSaver import JSONSaver
-from src.utils import Vacancy
+from src.utils import Vacancy, get_yes_no_input, get_salary_input
 
 
 def user_interaction():
@@ -38,22 +38,31 @@ def user_interaction():
             print(Vacancy.cast_to_object_list([item]))
 
         # Поиск вакансий по критериям
-        search_vacancy = input("Поиск вакансий по зарплате? (да/нет): ")
-        if search_vacancy == "да":
-            vacancies_criteria = json_saver.get_vacancies_by_salary(int(input("Введите зарплату: ")))
-            for item in vacancies_criteria:
-                print(Vacancy.cast_to_object_list([item]))
-        if search_vacancy == "нет":
-            pass
+        while True:
+            try:
+                search_vacancy = get_yes_no_input("Поиск вакансий по зарплате? (да/нет): ")
 
-        # Удаление информации о вакансиях
-        delite_vacancy = input("Удалить информацию о вакансиях? (да/нет): ")
-        if delite_vacancy == "да":
-            json_saver.delete_vacancy(vacancy=hh_vacancies_sorted)
+                if search_vacancy == "да":
+                    salary = get_salary_input("Введите зарплату: ")
+                    vacancies_criteria = json_saver.get_vacancies_by_salary(unformatted_salary=salary)
+                    for item in vacancies_criteria:
+                        print(Vacancy.cast_to_object_list([item]))
 
-        user_input = input("Продолжить поиск? (да/нет): ")
-        if user_input == "нет":
-            break
+                # Удаление информации о вакансиях
+                delete_vacancy = get_yes_no_input("Удалить информацию о вакансиях? (да/нет): ")
+                if delete_vacancy == "да":
+                    json_saver.delete_vacancy(vacancy=hh_vacancies_sorted)
+
+                # Повторить поиск
+                user_input = get_yes_no_input("Продолжить поиск? (да/нет): ")
+                if user_input == "да":
+                    break  # Завершает внутренний цикл для повторного поиска
+                else:
+                    print("Завершение поиска. Спасибо за использование!")
+                    exit()
+
+            except Exception as e:
+                print(f"Произошла ошибка: {e}")
 
 
 def main():
