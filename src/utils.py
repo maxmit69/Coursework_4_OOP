@@ -34,31 +34,46 @@ class WorkingWithFiles(ABC):
         pass
 
 
+class Descriptors:
+    """ Класс для работы с дескрипторами
+    """
+    def __set_name__(self, owner, name):
+        self.name = "__" + name
+
+    def __get__(self, instance, owner):
+        return instance.__dict__[self.name]
+
+    def __set__(self, instance, value):
+        instance.__dict__[self.name] = value
+
+
+
+
 class Vacancy:
     """ Клас для работы с вакансиями
     """
 
-    def __init__(self, name_vacancy=None, url=None, salary=None, requirements=None) -> None:
-        self.verify_name(name_vacancy)
-        self.verify_url(url)
-        self.verify_salary(salary)
-        self.verify_requirements(requirements)
+    name_vacancy = Descriptors()
+    url = Descriptors()
+    salary = Descriptors()
+    requirements = Descriptors()
 
-        self.__name_vacancy = name_vacancy
-        self.__url = url
-        self.__salary = salary
-        self.__requirements = requirements
+    def __init__(self, name_vacancy=None, url=None, salary=None, requirements=None):
+        self.name_vacancy = name_vacancy
+        self.url = url
+        self.salary = salary
+        self.requirements = requirements
 
     def __str__(self):
-        return f'{self.__name_vacancy}, {self.__url}, {self.__salary} руб, {self.__requirements}'
+        return f'{self.name_vacancy}, {self.url}, {self.salary} руб, {self.requirements}'
 
     def __repr__(self):
-        return f'{self.__class__.__name__}: {self.__name_vacancy}, {self.__url}, {self.__salary}, {self.__requirements}'
+        return f'{self.__class__.__name__}: {self.name_vacancy}, {self.url}, {self.salary}, {self.requirements}'
 
     def __lt__(self, other):
         """ Меньше или равно
         """
-        return self.__salary < other.salary
+        return self.salary < other.salary
 
     @classmethod
     def cast_to_object_list(cls, vacancy_data):
@@ -110,60 +125,19 @@ class Vacancy:
                 new_list.append(item)
         return new_list
 
-    @classmethod
-    def verify_name(cls, name_vacancy: str) -> None:
-        if not isinstance(name_vacancy, str):
-            raise TypeError(f'Значение должно быть {str}')
+def get_yes_no_input(prompt):
+    """Функция для запроса ответа 'да' или 'нет'."""
+    while True:
+        response = input(prompt).strip().lower()
+        if response in ("да", "нет"):
+            return response
+        print("Некорректное значение. Введите 'да' или 'нет'.")
 
-    @classmethod
-    def verify_url(cls, url: str) -> None:
-        if not isinstance(url, str):
-            raise TypeError(f'Значение должно быть {str}')
-
-    @classmethod
-    def verify_salary(cls, salary: int) -> None:
-        if not isinstance(salary, int):
-            raise TypeError(f'Значение должно быть {int}')
-        if salary == 0:
-            print('Зарплата не указана')
-
-    @classmethod
-    def verify_requirements(cls, requirements: str) -> None:
-        if not isinstance(requirements, str):
-            raise TypeError(f'Значение должно быть {str}')
-
-    @property
-    def name(self) -> str:
-        return self.__name_vacancy
-
-    @name.setter
-    def name(self, name_vacancy: str) -> None:
-        self.verify_name(name_vacancy)
-        self.__name_vacancy = name_vacancy
-
-    @property
-    def url(self) -> str:
-        return self.__url
-
-    @url.setter
-    def url(self, url) -> None:
-        self.verify_url(url)
-        self.__url = url
-
-    @property
-    def salary(self) -> int:
-        return self.__salary
-
-    @salary.setter
-    def salary(self, salary: int) -> None:
-        self.verify_salary(salary)
-        self.__salary = salary
-
-    @property
-    def requirements(self) -> str:
-        return self.__requirements
-
-    @requirements.setter
-    def requirements(self, requirements: str) -> None:
-        self.verify_requirements(requirements)
-        self.__requirements = requirements
+def get_salary_input(prompt):
+    """Функция для запроса ввода зарплаты в виде целого числа."""
+    while True:
+        try:
+            salary = int(input(prompt))
+            return salary
+        except ValueError:
+            print("Некорректное значение. Введите целое число для зарплаты.")
